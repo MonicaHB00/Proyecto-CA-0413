@@ -1,0 +1,47 @@
+"","formula","AIC","logLik","Dev"
+"1","clm ~ I(exposure)",32571.6067559121,-16283.8033779561,32567.6067559121
+"2","clm ~ I(exposure)+I(exposure^2)",32472.5143776366,-16233.2571888183,32466.5143776366
+"3","clm ~ I(exposure)+I(exposure^2)+I(exposure^3)",32469.1945746329,-16230.5972873164,32461.1945746329
+"4","clm ~ I(sqrt(exposure))",32485.1161929079,-16240.558096454,32481.1161929079
+"5","clm ~ I(exposure)+I(sqrt(exposure))",32469.411844154,-16231.705922077,32463.411844154
+"6","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))",32468.6864739154,-16230.3432369577,32460.6864739154
+"7","clm ~ I(exposure)+I(exposure^2)+I(exposure^3)+I(sqrt(exposure))",32470.4689267543,-16230.2344633771,32460.4689267543
+"8","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body",32456.5291117312,-16212.2645558656,32424.5291117312
+"9","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age",32450.5418324588,-16220.2709162294,32440.5418324588
+"10","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+gender",32469.6546724102,-16229.8273362051,32459.6546724102
+"11","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+area",32463.3510253797,-16222.6755126899,32445.3510253797
+"12","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+agecat",32391.5942349819,-16190.797117491,32381.5942349819
+"13","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age",32435.4571266611,-16200.7285633306,32401.4571266611
+"14","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + gender",32457.2496813625,-16211.6248406812,32423.2496813625
+"15","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + area",32451.8307862122,-16204.9153931061,32409.8307862122
+"16","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + agecat",32379.3979412343,-16172.6989706172,32345.3979412343
+"17","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + gender",32451.9117982491,-16219.9558991246,32439.9117982491
+"18","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + area",32445.1684549223,-16212.5842274612,32425.1684549223
+"19","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + agecat",32375.1128595375,-16181.5564297688,32363.1128595375
+"20","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+gender + area",32464.2209725736,-16222.1104862868,32444.2209725736
+"21","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+gender + agecat",32393.2043748244,-16190.6021874122,32381.2043748244
+"22","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+area + agecat",32389.7495824903,-16184.8747912452,32369.7495824903
+"23","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + gender",32436.4124217846,-16200.2062108923,32400.4124217846
+"24","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + area",32430.6594400589,-16193.3297200294,32386.6594400589
+"25","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + agecat",32360.3979444523,-16162.1989722262,32324.3979444523
+"26","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + gender + area",32452.3456743562,-16204.1728371781,32408.3456743562
+"27","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + gender + agecat",32381.1447213729,-16172.5723606865,32345.1447213729
+"28","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + area + agecat",32378.0621376697,-16167.0310688348,32334.0621376697
+"29","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + gender + area",32446.4630129261,-16212.2315064631,32424.4630129261
+"30","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + gender + agecat",32376.9458015648,-16181.4729007824,32362.9458015648
+"31","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + area + agecat",32373.3346454283,-16175.6673227141,32351.3346454283
+"32","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+gender + area + agecat",32391.3240769484,-16184.6620384742,32369.3240769484
+"33","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + gender + area",32431.4358953822,-16192.7179476911,32385.4358953822
+"34","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + gender + agecat",32362.235127972,-16162.117563986,32324.235127972
+"35","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + area + agecat",32358.9864656056,-16156.4932328028,32312.9864656056
+"36","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + gender + area + agecat",32379.7007345624,-16166.8503672812,32333.7007345624
+"37","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + gender + area + agecat",32375.1437545975,-16175.5718772987,32351.1437545975
+"38","clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + gender + area + agecat",32360.738410395,-16156.3692051975,32312.738410395
+"39","clm ~ I(sqrt(exposure))+veh_body + veh_age + agecat",32375.46431946,-16171.73215973,32343.46431946
+"40","clm ~ I(sqrt(exposure))+veh_body + veh_age + gender + agecat",32377.309049624,-16171.654524812,32343.309049624
+"41","clm ~ I(sqrt(exposure))+veh_body + veh_age + area + agecat",32374.1296111004,-16166.0648055502,32332.1296111004
+"42","clm ~ I(sqrt(exposure))+veh_body + veh_age + gender + area + agecat",32375.8907703381,-16165.945385169,32331.8907703381
+"43","clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age) + as.factor(agecat)",32371.1135723451,-16163.5567861726,32327.1135723451
+"44","clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age) +           agecat",32372.2446509321,-16168.1223254661,32336.2446509321
+"45","clm ~ I(sqrt(exposure))+veh_body +           veh_age + as.factor(agecat)",32374.4502518343,-16167.2251259171,32334.4502518343
+"46","clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age):as.factor(agecat)",32385.2587000664,-16155.6293500332,32311.2587000664
