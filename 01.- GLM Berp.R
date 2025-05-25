@@ -1,0 +1,184 @@
+rm(list=ls(all=TRUE))
+ls()
+
+datos = read.csv("car.csv",header=TRUE)
+
+head(datos)
+dim(datos)
+summary(datos)
+
+table(datos$clm)
+100*mean(datos$clm)
+
+
+f      = "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))"
+#f      = "clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age) + as.factor(agecat)"
+#f      = "clm ~ I(sqrt(exposure))+veh_body + veh_age + agecat"
+#f      = "clm ~ I(sqrt(exposure))+veh_body + I(veh_age*agecat)"
+#f      = "clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age):as.factor(agecat)"
+
+
+modelo = glm(formula=f, family = binomial(link = "logit"), data=datos )
+modelo
+summary(modelo)
+confint(modelo)
+
+as.numeric(logLik(modelo))
+AIC(modelo)
+
+modelo$deviance
+################################
+
+#Null deviance     = mide el ajuste del modelo cuando solo se utiliza el interceptor
+#Residual Deviance = 2(LL(Saturated Model) - LL(Proposed Model)) on df = df_Sat - df_Proposed
+
+sum(datos$clm)
+sum(modelo$fitted.values)
+
+modelo$deviance
+modelo$df.residual
+nrow(datos)-length(coef(modelo))
+
+modelo$deviance/modelo$df.residual                # KPI<1
+modelo$deviance/qchisq(.95,modelo$df.residual)    # KPI<1
+
+modelo
+datos[100,]
+
+modelo$linear.predictors[100]
+predict(modelo)[100]
+ -4.6245     +        0.9165*(0.2299795)     +       -0.9319*0.2299795^2       +      2.6545*(sqrt(0.2299795))
+ -4.6245     +        0.9165     +       -0.9319       +      2.6545
+
+
+100*modelo$fitted.values[100]
+100*1/(1+exp(3.190011))
+100*1/(1+exp(1.9854)) #Pi(1)
+
+t    = 1/12
+nu_t = -4.6245     +        0.9165*t     +       -0.9319*t^2       +      2.6545*sqrt(t)
+100*1/(1+exp(-nu_t)) #Pi(t)
+
+
+sum( as.numeric(modelo$fitted.values) - 1/(1+exp(-as.numeric(modelo$linear.predictors))) )
+
+datos$pi = as.numeric(modelo$fitted.values)
+sum(datos$pi)
+sum(datos$clm)
+
+head(datos)
+
+plot(datos$exposure,100*datos$pi)
+plot(datos$exposure,100*datos$pi,xlim=c(.6,.8))
+plot(datos$exposure,100*datos$pi,ylim=c(8,12))
+
+
+write.csv(datos,"ModeloBernoulli.csv")
+
+data.frame(A=1:length(letters),a=letters,b=LETTERS)
+
+#####################
+
+f      = "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))"
+
+eval_modelo <-function(f,datos)
+{
+	print(f)
+	modelo      = glm(formula=f, family = binomial(link = "logit"), data=datos )
+	resumen     = data.frame(
+	formula     = as.character(modelo$formula),
+	AIC         = AIC(modelo),
+	logLik      = as.numeric(logLik(modelo)),
+	Dev         = modelo$deviance
+					)
+	resumen
+}
+
+eval_modelo(f,datos)
+
+f=list()
+
+f[[1]]=  "clm ~ I(exposure)"
+f[[2]]=  "clm ~ I(exposure)+I(exposure^2)"
+f[[3]]=  "clm ~ I(exposure)+I(exposure^2)+I(exposure^3)"
+f[[4]]=  "clm ~ I(sqrt(exposure))"
+f[[5]]=  "clm ~ I(exposure)+I(sqrt(exposure))"
+f[[6]]=  "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))"
+f[[7]]=  "clm ~ I(exposure)+I(exposure^2)+I(exposure^3)+I(sqrt(exposure))"
+f[[8]]=  "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body"
+f[[9]]=  "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age"
+f[[10]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+gender"
+f[[11]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+area"
+f[[12]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+agecat"
+f[[13]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age"
+f[[14]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + gender"
+f[[15]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + area"
+f[[16]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + agecat"
+f[[17]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + gender"
+f[[18]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + area"
+f[[19]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + agecat"
+f[[20]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+gender + area"
+f[[21]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+gender + agecat"
+f[[22]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+area + agecat"
+f[[23]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + gender"
+f[[24]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + area"
+f[[25]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + agecat"
+f[[26]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + gender + area"
+f[[27]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + gender + agecat"
+f[[28]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + area + agecat"
+f[[29]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + gender + area"
+f[[30]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + gender + agecat"
+f[[31]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + area + agecat"
+f[[32]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+gender + area + agecat"
+f[[33]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + gender + area"
+f[[34]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + gender + agecat"
+f[[35]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + area + agecat"
+f[[36]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + gender + area + agecat"
+f[[37]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_age + gender + area + agecat"
+f[[38]]= "clm ~ I(exposure)+I(exposure^2)+I(sqrt(exposure))+veh_body + veh_age + gender + area + agecat"
+f[[39]]= "clm ~ I(sqrt(exposure))+veh_body + veh_age + agecat"
+f[[40]]= "clm ~ I(sqrt(exposure))+veh_body + veh_age + gender + agecat"
+f[[41]]= "clm ~ I(sqrt(exposure))+veh_body + veh_age + area + agecat"
+f[[42]]= "clm ~ I(sqrt(exposure))+veh_body + veh_age + gender + area + agecat"
+f[[43]]= "clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age) + as.factor(agecat)"
+f[[44]]= "clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age) +           agecat"
+f[[45]]= "clm ~ I(sqrt(exposure))+veh_body +           veh_age + as.factor(agecat)"
+f[[46]]= "clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age):as.factor(agecat)"
+
+
+
+
+Resumen = data.frame()
+
+
+for(i in 1:length(f))
+{
+	Resumen = rbind(Resumen,eval_modelo(f[[i]],datos))
+}
+
+Resumen
+
+write.csv(Resumen,"ResumenModelosFull.csv")
+
+
+
+f      = "clm ~ I(sqrt(exposure))+veh_body + as.factor(veh_age) + as.factor(agecat)"
+modelo = glm(formula=f, family = binomial(link = "logit"), data=datos )
+modelo
+summary(modelo)
+confint(modelo)
+AIC(modelo)
+as.numeric(logLik(modelo))
+modelo$deviance
+
+
+datos[72,]
+modelo$linear.predictors[72]
+modelo$fitted.values[72]
+
+
+datos[2000,]
+modelo$linear.predictors[2000]
+modelo$fitted.values[2000]
+
+
