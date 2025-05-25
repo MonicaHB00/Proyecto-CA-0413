@@ -59,62 +59,66 @@ print(estadisticas_basicas)
 ```
 
 ```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
 
+# Seleccionar columna numérica
+df_numericas <- df %>% select(exposure,claimcst0)
 
-# Supongamos que tu dataframe principal se llama df
-# Define las variables numéricas que quieres graficar
-df_numericas <- df %>% select(exposure)  # <- seleccionar columnas del dataframe
-
-# Convertir a formato largo para graficar con facet_wrap
+# Convertir a formato largo
 df_largo <- df_numericas %>%
   pivot_longer(cols = everything(), names_to = "Variable", values_to = "Valor")
 
-# Crear histograma con facet para cada variable
-ggplot(df_largo, aes(x = Valor)) +
+# Crear gráfico y guardarlo en un objeto
+p <- ggplot(df_largo, aes(x = Valor)) +
   geom_histogram(bins = 30, fill = "steelblue", color = "white") +
   facet_wrap(~ Variable, scales = "free") +
   theme_minimal() +
-  labs(title = "Histogramas de Variables Numéricas", x = "Valor", y = "Frecuencia")
+  labs(title = "", x = "Valor", y = "Frecuencia")
+
+# Guardar como imagen JPG
+ggsave("histograma_exposure.jpg", plot = p, width = 12, height = 4, dpi = 300)
 
 ```
 ```{r}
 
-
 # Lista de variables categóricas
 variables_categoricas <- c("agecat", "veh_age", "numclaims", "veh_body", "gender", "area")
 
-# Crear Top 5 con conversión de categoría a character
+# Crear Top 5
 top_5_categorias <- lapply(variables_categoricas, function(var) {
   df %>%
     count(!!sym(var)) %>%
     arrange(desc(n)) %>%
     slice_head(n = 5) %>%
     mutate(variable = var,
-           categoria = as.character(!!sym(var))) %>%  # <- conversión aquí
+           categoria = as.character(!!sym(var))) %>%
     select(variable, categoria, n)
 }) %>%
   bind_rows()
-# Ordenar categorías para visualización
+
+# Ordenar para visualización
 top_5_categorias <- top_5_categorias %>%
   group_by(variable) %>%
   mutate(categoria = factor(categoria, levels = rev(unique(categoria)))) %>%
   ungroup()
 
-# Gráfico
-ggplot(top_5_categorias, aes(x = categoria, y = n, fill = variable)) +
+# Crear gráfico y asignarlo a un objeto
+grafico_top5 <- ggplot(top_5_categorias, aes(x = categoria, y = n, fill = variable)) +
   geom_col(show.legend = FALSE) +
   coord_flip() +
   facet_wrap(~ variable, scales = "free_y") +
-  labs(title = "Top 5 Categorías Más Frecuentes por Variable",
+  labs(title = "",
        x = "Categoría",
        y = "Frecuencia") +
   theme_cowplot()
 
+# Guardar como JPG
+ggsave("top_5_categorias.jpg", plot = grafico_top5, width = 12, height = 6, dpi = 300)
 
 ```
 ```{r}
-
-
 # Paso 1: seleccionar solo variables numéricas
 df_numericas <- df %>% select(where(is.numeric))
 
@@ -126,8 +130,8 @@ df_cor <- as.data.frame(matriz_cor) %>%
   rownames_to_column(var = "Var1") %>%
   pivot_longer(-Var1, names_to = "Var2", values_to = "Correlacion")
 
-# Paso 4: graficar mapa de calor
-ggplot(df_cor, aes(x = Var1, y = Var2, fill = Correlacion)) +
+# Paso 4: crear gráfico y asignarlo a un objeto
+mapa_cor <- ggplot(df_cor, aes(x = Var1, y = Var2, fill = Correlacion)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "red", high = "blue", mid = "white",
                        midpoint = 0, limit = c(-1,1), space = "Lab",
@@ -135,7 +139,76 @@ ggplot(df_cor, aes(x = Var1, y = Var2, fill = Correlacion)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   coord_fixed() +
-  labs(title = "Mapa de Calor de Correlaciones")
+  labs(title = "")
+
+# Paso 5: guardar el gráfico como imagen .jpg
+ggsave("mapa_calor_correlaciones.jpg", plot = mapa_cor, width = 7, height = 6, dpi = 300)
+
+```
+
+```{r}
+library(ggplot2)
+library(cowplot)
+library(scales)
+library(dplyr)
+library(rlang)
+
+# Discretizar exposure en 5 rangos
+df$exposure_cat <- cut(df$exposure, breaks = 5)
+
+# Función mejorada
+grafico_clm_solo1 <- function(var, titulo = NULL) {
+  df %>%
+    count(!!sym(var), clm) %>%
+    group_by(!!sym(var)) %>%
+    mutate(prop = n / sum(n)) %>%
+    filter(clm == 1) %>%
+    ggplot(aes_string(x = var, y = "prop")) +
+    geom_col(fill = "#2a9d8f", width = 0.7) +
+    geom_text(aes(label = scales::percent(prop, accuracy = 0.1)), 
+              vjust = -0.5, size = 3.2, color = "black") +
+    scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.15), expand = c(0, 0)) +
+    labs(
+      x = NULL,
+      y = "Proporción de reclamos",
+      title = titulo
+    ) +
+    theme_minimal(base_size = 11) +
+    theme(
+      axis.text.x = element_text(angle = 25, hjust = 1, size = 9),
+      axis.title.y = element_text(size = 9),
+      plot.title = element_text(size = 11, face = "bold"),
+      panel.grid.minor = element_blank()
+    )
+}
+
+# Crear los 6 gráficos
+p1 <- grafico_clm_solo1("gender", "Género")
+p2 <- grafico_clm_solo1("area", "Área")
+p3 <- grafico_clm_solo1("veh_body", "Tipo de vehículo")
+p4 <- grafico_clm_solo1("veh_age", "Antigüedad del vehículo")
+p5 <- grafico_clm_solo1("agecat", "Categoría de edad")
+p6 <- grafico_clm_solo1("exposure_cat", "Nivel de exposición")
+
+# Organizar en 3 filas de 2
+fila1 <- plot_grid(p1, p2, ncol = 2)
+fila2 <- plot_grid(p3, p4, ncol = 2)
+fila3 <- plot_grid(p5, p6, ncol = 2)
+
+grafico_final <- plot_grid(fila1, fila2, fila3, ncol = 1, rel_heights = c(1, 1, 1.05))
+
+# Mostrar
+print(grafico_final)
+
+```
+```{r}
+# Guardar como archivo JPG
+ggsave("grafico_reclamos_por_variable.jpg",
+       plot = grafico_final,
+       width = 12,       # ancho en pulgadas
+       height = 10,      # alto en pulgadas
+       dpi = 300,        # alta resolución
+       units = "in")     # unidades en pulgadas
 
 ```
 
