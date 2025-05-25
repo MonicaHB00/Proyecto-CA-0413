@@ -1,0 +1,141 @@
+---
+title: 'Análisis de Datos en R'
+output: html_document
+---
+
+
+# 0.  Inicializar
+
+
+```{r}
+library(skimr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(scales)
+library(tibble)  # <- importante para rownames_to_column
+library(cowplot)
+  
+  theme_set(theme_cowplot())
+```
+
+```{r}
+# Cargar datos eliminando la primera columna (_c0)
+df <- read.csv("car.csv", sep = ",")
+df <- df[ , -1]  # Eliminar la primera columna si es un índice automático (_c0)
+
+# Mostrar las primeras filas
+head(df)
+
+```
+```{r}
+
+
+# Supongamos que tu base de datos se llama 'df'
+# Primero filtramos solo las columnas numéricas y usamos skim()
+
+estadisticas_basicas <- df %>%
+  select(where(is.numeric)) %>%
+  skim()
+
+# Mostrar solo las estadísticas relevantes si deseas un resumen más simple:
+resumen_simple <- df %>%
+  select(where(is.numeric)) %>%
+  summarise(across(everything(),
+                   list(
+                     media = ~mean(., na.rm = TRUE),
+                     mediana = ~median(., na.rm = TRUE),
+                     min = ~min(., na.rm = TRUE),
+                     max = ~max(., na.rm = TRUE),
+                     sd = ~sd(., na.rm = TRUE),
+                     n = ~sum(!is.na(.))
+                   ),
+                   .names = "{.col}_{.fn}"))
+
+# Mostrar resultados
+print(estadisticas_basicas) 
+
+```
+
+```{r}
+
+
+# Supongamos que tu dataframe principal se llama df
+# Define las variables numéricas que quieres graficar
+df_numericas <- df %>% select(exposure)  # <- seleccionar columnas del dataframe
+
+# Convertir a formato largo para graficar con facet_wrap
+df_largo <- df_numericas %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Valor")
+
+# Crear histograma con facet para cada variable
+ggplot(df_largo, aes(x = Valor)) +
+  geom_histogram(bins = 30, fill = "steelblue", color = "white") +
+  facet_wrap(~ Variable, scales = "free") +
+  theme_minimal() +
+  labs(title = "Histogramas de Variables Numéricas", x = "Valor", y = "Frecuencia")
+
+```
+```{r}
+
+
+# Lista de variables categóricas
+variables_categoricas <- c("agecat", "veh_age", "numclaims", "veh_body", "gender", "area")
+
+# Crear Top 5 con conversión de categoría a character
+top_5_categorias <- lapply(variables_categoricas, function(var) {
+  df %>%
+    count(!!sym(var)) %>%
+    arrange(desc(n)) %>%
+    slice_head(n = 5) %>%
+    mutate(variable = var,
+           categoria = as.character(!!sym(var))) %>%  # <- conversión aquí
+    select(variable, categoria, n)
+}) %>%
+  bind_rows()
+# Ordenar categorías para visualización
+top_5_categorias <- top_5_categorias %>%
+  group_by(variable) %>%
+  mutate(categoria = factor(categoria, levels = rev(unique(categoria)))) %>%
+  ungroup()
+
+# Gráfico
+ggplot(top_5_categorias, aes(x = categoria, y = n, fill = variable)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  facet_wrap(~ variable, scales = "free_y") +
+  labs(title = "Top 5 Categorías Más Frecuentes por Variable",
+       x = "Categoría",
+       y = "Frecuencia") +
+  theme_cowplot()
+
+
+```
+```{r}
+
+
+# Paso 1: seleccionar solo variables numéricas
+df_numericas <- df %>% select(where(is.numeric))
+
+# Paso 2: calcular la matriz de correlación
+matriz_cor <- cor(df_numericas, use = "pairwise.complete.obs")
+
+# Paso 3: convertir la matriz en formato largo
+df_cor <- as.data.frame(matriz_cor) %>%
+  rownames_to_column(var = "Var1") %>%
+  pivot_longer(-Var1, names_to = "Var2", values_to = "Correlacion")
+
+# Paso 4: graficar mapa de calor
+ggplot(df_cor, aes(x = Var1, y = Var2, fill = Correlacion)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "red", high = "blue", mid = "white",
+                       midpoint = 0, limit = c(-1,1), space = "Lab",
+                       name = "Correlación") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  coord_fixed() +
+  labs(title = "Mapa de Calor de Correlaciones")
+
+```
+
