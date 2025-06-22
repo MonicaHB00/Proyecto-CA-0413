@@ -137,9 +137,12 @@ mapa_cor <- ggplot(df_cor, aes(x = Var1, y = Var2, fill = Correlacion)) +
                        midpoint = 0, limit = c(-1,1), space = "Lab",
                        name = "Correlación") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
   coord_fixed() +
-  labs(title = "")
+  labs(x = NULL, y = NULL)  # <- esto quita los títulos de los ejes
+
 
 # Paso 5: guardar el gráfico como imagen .jpg
 ggsave("mapa_calor_correlaciones.jpg", plot = mapa_cor, width = 7, height = 6, dpi = 300)
@@ -147,27 +150,32 @@ ggsave("mapa_calor_correlaciones.jpg", plot = mapa_cor, width = 7, height = 6, d
 ```
 
 ```{r}
-library(ggplot2)
+ library(ggplot2)
 library(cowplot)
 library(scales)
 library(dplyr)
 library(rlang)
-
 # Discretizar exposure en 5 rangos
 df$exposure_cat <- cut(df$exposure, breaks = 5)
-
-# Función mejorada
-grafico_clm_solo1 <- function(var, titulo = NULL) {
-  df %>%
+# Función modificada con control de ángulo y formato decimal
+grafico_clm_solo1 <- function(var, titulo = NULL, tilt_x = TRUE, usar_coma = FALSE) {
+  p <- df %>%
     count(!!sym(var), clm) %>%
     group_by(!!sym(var)) %>%
     mutate(prop = n / sum(n)) %>%
     filter(clm == 1) %>%
     ggplot(aes_string(x = var, y = "prop")) +
     geom_col(fill = "#2a9d8f", width = 0.7) +
-    geom_text(aes(label = scales::percent(prop, accuracy = 0.1)), 
-              vjust = -0.5, size = 3.2, color = "black") +
-    scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.15), expand = c(0, 0)) +
+    geom_text(aes(label = if (usar_coma) {
+      gsub("\\.", ",", sprintf("%.1f%%", prop * 100))
+    } else {
+      scales::percent(prop, accuracy = 0.1)
+    }), 
+    vjust = -0.5, size = 3.2, color = "black") +
+    scale_y_continuous(
+      labels = if (usar_coma) function(x) gsub("\\.", ",", sprintf("%.0f%%", x * 100)) else percent_format(accuracy = 1),
+      limits = c(0, 0.15), expand = c(0, 0)
+    ) +
     labs(
       x = NULL,
       y = "Proporción de reclamos",
@@ -175,30 +183,34 @@ grafico_clm_solo1 <- function(var, titulo = NULL) {
     ) +
     theme_minimal(base_size = 11) +
     theme(
-      axis.text.x = element_text(angle = 25, hjust = 1, size = 9),
+      axis.text.x = element_text(
+        angle = if (tilt_x) 25 else 0,
+        hjust = if (tilt_x) 1 else 0.5,
+        size = 9
+      ),
       axis.title.y = element_text(size = 9),
       plot.title = element_text(size = 11, face = "bold"),
       panel.grid.minor = element_blank()
     )
+  return(p)
 }
 
-# Crear los 6 gráficos
-p1 <- grafico_clm_solo1("gender", "Género")
-p2 <- grafico_clm_solo1("area", "Área")
-p3 <- grafico_clm_solo1("veh_body", "Tipo de vehículo")
-p4 <- grafico_clm_solo1("veh_age", "Antigüedad del vehículo")
-p5 <- grafico_clm_solo1("agecat", "Categoría de edad")
-p6 <- grafico_clm_solo1("exposure_cat", "Nivel de exposición")
+# Gráficos ajustados
+p1 <- grafico_clm_solo1("gender", "Género", tilt_x = FALSE)
+p2 <- grafico_clm_solo1("area", "Área", tilt_x = FALSE)
+p3 <- grafico_clm_solo1("veh_body", "Tipo de vehículo")  # mantiene inclinación
+p4 <- grafico_clm_solo1("veh_age", "Antigüedad del vehículo", tilt_x = FALSE)
+p5 <- grafico_clm_solo1("agecat", "Categoría de edad", tilt_x = FALSE)
+p6 <- grafico_clm_solo1("exposure_cat", "Nivel de exposición", usar_coma = TRUE)
 
-# Organizar en 3 filas de 2
+# Combinación final
 fila1 <- plot_grid(p1, p2, ncol = 2)
 fila2 <- plot_grid(p3, p4, ncol = 2)
 fila3 <- plot_grid(p5, p6, ncol = 2)
 
 grafico_final <- plot_grid(fila1, fila2, fila3, ncol = 1, rel_heights = c(1, 1, 1.05))
-
-# Mostrar
 print(grafico_final)
+
 
 ```
 ```{r}
