@@ -76,8 +76,11 @@ def sigmoid(x):
 def calcular_pi_xb(xb):
     return sigmoid(xb)
 
-def calcular_prima_riesgo_daños(p, E_X, V_X, k):
-    return p * E_X + k * math.sqrt(p * (1 - p) * E_X**2 + p * V_X)
+def calcular_mu_poisson(eta):
+    return math.exp(eta)
+
+def calcular_prima_riesgo_daños(p, E_X, E_X2, k):
+    return p * E_X + k * math.sqrt(p * E_X2)
 
 def calcular_prima_riesgo_perdida(p, sa, k):
     return sa * (p + k * math.sqrt(p * (1 - p)))
@@ -112,7 +115,7 @@ def main():
             sa = st.number_input("Suma Asegurada:", min_value=0.0, value=5000.0, step=100.0, key="ber_sa")
 
         if cobertura == "Daños Materiales":
-            prima_riesgo = calcular_prima_riesgo_daños(p, E_X, V_X, k)
+            prima_riesgo = calcular_prima_riesgo_daños(p, E_X, E_X2, k)
         else:
             prima_riesgo = calcular_prima_riesgo_perdida(p, sa, k)
 
@@ -139,9 +142,9 @@ def main():
             + COEF_POISSON['exposure_terms']['I(exposure^2)'] * (t ** 2) \
             + COEF_POISSON['exposure_terms']['I(sqrt(exposure))'] * math.sqrt(t)
 
-        lam = math.exp(eta)
+        mu = calcular_mu_poisson(eta)
 
-        st.write(f"**η (eta):** {eta:.6f} | **λ (lambda):** {lam:.6f}")
+        st.write(f"**η (eta):** {eta:.6f} | **μ (mu):** {mu:.6f}")
 
         cobertura = st.radio("Cobertura:", ["Daños Materiales", "Pérdida Total"], key="pois_cobertura")
         k = st.number_input("Parámetro k:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, key="pois_k")
@@ -150,9 +153,9 @@ def main():
             sa = st.number_input("Suma Asegurada:", min_value=0.0, value=5000.0, step=100.0, key="pois_sa")
 
         if cobertura == "Daños Materiales":
-            prima_riesgo = calcular_prima_riesgo_daños(lam, E_X, V_X, k)
+            prima_riesgo = calcular_prima_riesgo_daños(mu, E_X, E_X2, k)
         else:
-            prima_riesgo = calcular_prima_riesgo_perdida(lam, sa, k)
+            prima_riesgo = calcular_prima_riesgo_perdida(mu, sa, k)
 
         prima_tarifa = calcular_prima_tarifa(prima_riesgo)
 
