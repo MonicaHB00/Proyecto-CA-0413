@@ -99,7 +99,7 @@ def main():
         st.header(" Modelo Bernoulli")
         veh_body = st.selectbox("Carrocería:", list(COEF_BER_VEH_BODY.keys()), key="ber_body")
         veh_age = st.selectbox("Edad Vehículo:", list(COEF_BER_VEH_AGE.keys()), key="ber_age")
-        agecat = st.selectbox("Experiencia del Conductor:", list(COEF_BER_AGECAT.keys()), key="ber_agecat")
+        agecat = st.selectbox("Categoría de Edad:", list(COEF_BER_AGECAT.keys()), key="ber_agecat")
         exposure = st.selectbox("Exposición:", list(EXPOSURE_T.keys()), key="ber_expo")
 
         sqrt_exp = math.sqrt(EXPOSURE_T[exposure])
@@ -129,7 +129,7 @@ def main():
         st.header(" Modelo Poisson")
         veh_body = st.selectbox("Carrocería:", list(COEF_POISSON['veh_body'].keys()), key="pois_body")
         veh_age = st.selectbox("Edad Vehículo:", list(COEF_POISSON['veh_age'].keys()), key="pois_age")
-        agecat = st.selectbox("Experiencia del Conductor:", list(COEF_POISSON['agecat'].keys()), key="pois_agecat")
+        agecat = st.selectbox("Categoría de Edad:", list(COEF_POISSON['agecat'].keys()), key="pois_agecat")
         gender = st.selectbox("Género:", list(COEF_POISSON['gender'].keys()), key="pois_gender")
         area = st.selectbox("Área:", list(COEF_POISSON['area'].keys()), key="pois_area")
         exposure = st.selectbox("Exposición:", list(EXPOSURE_T.keys()), key="pois_expo")
