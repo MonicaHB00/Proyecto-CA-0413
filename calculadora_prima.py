@@ -4,7 +4,7 @@ import math
 
 # Configuración de la página con theme
 st.set_page_config(
-    page_title="Calculadora de Prima de Riesgo GLM",
+    page_title="Estimador de prima de riesgo",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -90,7 +90,7 @@ def calcular_prima_tarifa(prima_riesgo):
 
 # --------------------------- INTERFAZ ---------------------------
 def main():
-    st.title(" Calculadora de Prima de Riesgo GLM")
+    st.title("Estimador de prima de riesgo")
     st.write("---")
     tab1, tab2 = st.tabs(["Modelo Bernoulli", "Modelo Poisson"])
 
