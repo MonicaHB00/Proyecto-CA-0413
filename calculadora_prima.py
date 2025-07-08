@@ -96,19 +96,20 @@ def main():
         st.header(" Modelo Bernoulli")
         veh_body = st.selectbox("Carrocería:", list(COEF_BER_VEH_BODY.keys()), key="ber_body")
         veh_age = st.selectbox("Edad Vehículo:", list(COEF_BER_VEH_AGE.keys()), key="ber_age")
-        agecat = st.selectbox("Edad Conductor:", list(COEF_BER_AGECAT.keys()), key="ber_agecat")
+        agecat = st.selectbox("Experiencia del Conductor:", list(COEF_BER_AGECAT.keys()), key="ber_agecat")
         exposure = st.selectbox("Exposición:", list(EXPOSURE_T.keys()), key="ber_expo")
-        cobertura = st.radio("Cobertura:", ["Daños Materiales", "Pérdida Total"], key="ber_cobertura")
-        k = st.number_input("Parámetro k:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, key="ber_k")
-
-        if cobertura == "Pérdida Total":
-            sa = st.number_input("Suma Asegurada:", min_value=0.0, value=5000.0, step=100.0, key="ber_sa")
 
         sqrt_exp = math.sqrt(EXPOSURE_T[exposure])
         xb = INTERCEPTO_BERNOULLI + COEF_BER_VEH_BODY[veh_body] + COEF_BER_VEH_AGE[veh_age] + COEF_BER_AGECAT[agecat] + COEF_BER_SQRT_EXPOSURE * sqrt_exp
         p = calcular_pi_xb(xb)
 
         st.write(f"**Xβ:** {xb:.6f} | **P(Xβ):** {p*100:.2f}%")
+
+        cobertura = st.radio("Cobertura:", ["Daños Materiales", "Pérdida Total"], key="ber_cobertura")
+        k = st.number_input("Parámetro k:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, key="ber_k")
+
+        if cobertura == "Pérdida Total":
+            sa = st.number_input("Suma Asegurada:", min_value=0.0, value=5000.0, step=100.0, key="ber_sa")
 
         if cobertura == "Daños Materiales":
             prima_riesgo = calcular_prima_riesgo_daños(p, E_X, V_X, k)
@@ -125,15 +126,10 @@ def main():
         st.header(" Modelo Poisson")
         veh_body = st.selectbox("Carrocería:", list(COEF_POISSON['veh_body'].keys()), key="pois_body")
         veh_age = st.selectbox("Edad Vehículo:", list(COEF_POISSON['veh_age'].keys()), key="pois_age")
-        agecat = st.selectbox("Edad Conductor:", list(COEF_POISSON['agecat'].keys()), key="pois_agecat")
+        agecat = st.selectbox("Experiencia del Conductor:", list(COEF_POISSON['agecat'].keys()), key="pois_agecat")
         gender = st.selectbox("Género:", list(COEF_POISSON['gender'].keys()), key="pois_gender")
         area = st.selectbox("Área:", list(COEF_POISSON['area'].keys()), key="pois_area")
         exposure = st.selectbox("Exposición:", list(EXPOSURE_T.keys()), key="pois_expo")
-        cobertura = st.radio("Cobertura:", ["Daños Materiales", "Pérdida Total"], key="pois_cobertura")
-        k = st.number_input("Parámetro k:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, key="pois_k")
-
-        if cobertura == "Pérdida Total":
-            sa = st.number_input("Suma Asegurada:", min_value=0.0, value=5000.0, step=100.0, key="pois_sa")
 
         t = EXPOSURE_T[exposure]
         eta = INTERCEPTO_POISSON \
@@ -146,6 +142,12 @@ def main():
         lam = math.exp(eta)
 
         st.write(f"**η (eta):** {eta:.6f} | **λ (lambda):** {lam:.6f}")
+
+        cobertura = st.radio("Cobertura:", ["Daños Materiales", "Pérdida Total"], key="pois_cobertura")
+        k = st.number_input("Parámetro k:", min_value=0.0, max_value=1.0, value=0.05, step=0.01, key="pois_k")
+
+        if cobertura == "Pérdida Total":
+            sa = st.number_input("Suma Asegurada:", min_value=0.0, value=5000.0, step=100.0, key="pois_sa")
 
         if cobertura == "Daños Materiales":
             prima_riesgo = calcular_prima_riesgo_daños(lam, E_X, V_X, k)
